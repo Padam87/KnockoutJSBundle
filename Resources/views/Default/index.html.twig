@@ -1,0 +1,14 @@
+
+{% extends "::base.html.twig" %}
+
+{% block title %}Knockout.js @ {{ parent() }}{% endblock %}
+
+{% block content %}
+
+<form method="POST">
+    {{ form_widget(form) }}
+        
+        <button>SAVE</button>
+</form>
+
+{% endblock %}
