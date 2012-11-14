@@ -1,0 +1,17 @@
+{
+    "name": "padam87/knockout-js-bundle",
+    "type": "symfony-bundle",
+    "description": "Symfony KnockoutJSBundle",
+    "keywords": ["modules", "reusability"],
+    "homepage": "https://github.com/Padam87/KnockoutJSBundle",
+    "authors": [
+        {
+            "name": "Adam Prager",
+            "email": "prager.adam87@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-0": { "Padam87\\KnockoutJSBundle": "" }
+    },
+    "target-dir": "Padam87/KnockoutJSBundle"
+}
