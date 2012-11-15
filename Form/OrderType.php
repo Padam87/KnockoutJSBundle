@@ -2,22 +2,20 @@
 
 namespace Padam87\KnockoutJSBundle\Form;
 
-use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilder;
-use Acme\PizzaBundle\Form\Type\CustomerType;
-use Acme\PizzaBundle\Form\Type\OrderItemType;
+use Symfony\Component\Form\FormBuilderInterface;
 
-class OrderFormType extends AbstractType
+class OrderType extends \Padam87\BaseBundle\Form\OrderType
 {
-    public function buildForm(FormBuilder $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('customer', new CustomerType())
+            ->remove('items')
             ->add('items', 'knockout', array(
-                'type'         => new OrderItemType(),
+                'type'         => new \Padam87\BaseBundle\Form\OrderItemType(),
                 'allow_add'    => true,
                 'allow_delete' => true,
                 'prototype'    => true,
+                'by_reference'  => false,
             ))
         ;
     }
@@ -26,6 +24,7 @@ class OrderFormType extends AbstractType
 	{
 		return array(
 			'knockout' => true,
+            'data_class' => 'Padam87\BaseBundle\Entity\Order'
 		);
 	}
 

@@ -5,16 +5,16 @@ namespace Padam87\KnockoutJSBundle\Form\Extension;
 use Symfony\Component\Form\AbstractTypeExtension;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
-use Symfony\Component\Form\FormBuilder;
+use Symfony\Component\Form\FormBuilderInterface;
 
 class KnockoutExtension extends AbstractTypeExtension
 {    
-    public function buildForm(FormBuilder $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->setAttribute('knockout', $options['knockout']);
     }
 
-    public function buildView(FormView $view, FormInterface $form)
+    public function buildView(FormView $view, FormInterface $form, array $options)
     {
         $knockout['enabled'] = $form->getAttribute('knockout');
         
@@ -106,7 +106,6 @@ class KnockoutExtension extends AbstractTypeExtension
         
         foreach($children as $field) {
             if($field->getName() === '_token') continue;
-            
             $data = $field->getData();
             
             if(is_object($data) && $data instanceof \Doctrine\ORM\PersistentCollection) {
@@ -123,7 +122,7 @@ class KnockoutExtension extends AbstractTypeExtension
         return $collections;
     }
 
-    public function getDefaultOptions(array $options)
+    public function getDefaultOptions()
     {
         return array(
             'knockout' => false,

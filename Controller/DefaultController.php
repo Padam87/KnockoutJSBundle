@@ -6,7 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
-use Padam87\KnockoutJSBundle\Form\OrderFormType;
+use Padam87\KnockoutJSBundle\Form\OrderType;
 
 /**
  * @Route("/ko")
@@ -21,25 +21,19 @@ class DefaultController extends Controller
     {
         $em = $this->getDoctrine()->getEntityManager();
 
-        $order = $em->getRepository('AcmePizzaBundle:Order')->findOneBy(array());
+        $order = $em->getRepository('Padam87BaseBundle:Order')->findOneBy(array());
         
-        $form = $this->createForm(new OrderFormType(), $order);
+        $form = $this->createForm(new OrderType(), $order);
         
         if($this->getRequest()->getMethod() === 'POST') {
             $form->bindRequest($this->getRequest());
             
             $order = $form->getData();
             
-            foreach($order->getItems() as $item) {
-                $item->setOrder($order);
-                $order->addItem($item);
-                $em->persist($item);
-            }
-            
             $em->persist($order);
             $em->flush();
             
-            $this->redirect($this->generateUrl("padam87_knockoutjs_default_index"));
+            return $this->redirect($this->generateUrl("padam87_knockoutjs_default_index"));
         }
         
         return array(

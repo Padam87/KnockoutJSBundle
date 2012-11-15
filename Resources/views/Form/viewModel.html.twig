@@ -16,10 +16,9 @@
     {% if prototype is defined %}
         <script id="{{ id }}_template" type="text/html">
             <tr>
-                <td>${id}</td>
             {% for name, field in prototype %}
                 <td>
-                {{ form_widget(field, { attr: { 'data-bind': 'value: ' ~ name } }) }}
+                {{ form_widget(field, { attr: { 'data-bind': 'value: ' ~ name ~ ', uniqueId: ' ~ name } }) }}
                 </td>
             {% endfor %}
                 <td><button type="button" class="btn" data-bind="click: remove">{% trans %}knockout.remove{% endtrans %}</button></td>
@@ -30,7 +29,6 @@
     <table class="table">
         <thead>
             <tr>
-                <th></th>
             {% for name, field in prototype %}
                 <th>
                     {{ form_label(field) }}
@@ -39,7 +37,7 @@
                 <th><button type="button" class="btn" data-bind="click: create{{ name|capitalize }}">{% trans %}knockout.add{% endtrans %}</button></th>
             </tr>
         </thead>
-        <tbody data-bind="template: { name: '{{ id }}_template', foreach: items, id: 1 }">
+        <tbody data-bind="template: { name: '{{ id }}_template', foreach: items, afterRender: incCounter }">
         </tbody>
     </table>
 {% endspaceless %}
@@ -51,9 +49,18 @@ $(document).ready(function () {
     {% for id, binding in params.bindings %}
         $("#{{ params.name }}_{{ id }}").attr('data-bind', "{{ binding }}");
     {% endfor %}
+        
+    ko.bindingHandlers.uniqueId = {
+        init: function(element, valueAccessor) {
+            var counter = {{ params.name }}ViewModel.counter;
+            
+            element.id = element.id.replace(/_id_/g, counter);
+            element.name = element.name.replace(/_id_/g, counter);
+        }
+    };
     
     var {{ params.name }}ViewModel = {
-            {{ _self.viewModelFields(params.fields, params.collections)|raw }},
+            {{ _self.viewModelFields(params.fields, params.collections, params.name)|raw }},
             {{ _self.viewModelMethods(params.fields, params.collections)|raw }}
         };
         
@@ -65,7 +72,11 @@ $(document).ready(function () {
 </script>
 {% endmacro %}
 
-{% macro viewModelFields(fields, collections) %}
+{% macro viewModelFields(fields, collections, modelName) %}
+counter: 0,
+incCounter: function() {
+    {{ modelName }}ViewModel.counter++;
+},
     {% for name, value in fields %}
         {% spaceless %}
             {{ name }} :
@@ -73,7 +84,7 @@ $(document).ready(function () {
                 {% if collections[name] is defined %}
                     ko.observableArray([
                         {% for v in value %}
-                            new {{name}}({% for cname, field in collections[name] %}'{{v[cname]}}', {% endfor %}'{{v['id']}}')
+                            new {{name}}({% for cname, field in collections[name] %}'{{v[cname]}}'{% if not loop.last %},{% endif %} {% endfor %})
                             {% if not loop.last %}
                                 ,
                             {% endif %}
@@ -95,19 +106,18 @@ $(document).ready(function () {
 {% macro viewModelMethods(fields, collections) %}
     {% for name, value in collections %}
         create{{ name|capitalize }}: function() {
-            this.{{name}}.push(new {{name}}())
+            this.{{name}}.push(new {{name}}());
         }
     {% endfor %}
 {% endmacro %}
 
 {% macro viewModelFunctions(vmname, fields, collections) %}
     {% for name, value in collections %}
-        function {{ name }}({% for k, v in value %}{{k}}, {% endfor %}id) {
+        function {{ name }}({% for k, v in value %}{{k}}{% if not loop.last %},{% endif %} {% endfor %}) {
             return {
                 {% for k, v in value %}
                     '{{ k }}' : ko.observable({{ k }}),
                 {% endfor %}
-                id: id || {{ vmname }}ViewModel.{{name}}().length + 1,
                 remove: function() {
                     {{ vmname }}ViewModel.{{name}}.remove(this);
                 }
