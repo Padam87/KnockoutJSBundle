@@ -49,8 +49,6 @@ I have added the items field with the KnockoutType, which extends the Collection
 
 Please don't forget to install assets, and add the js to your page.
 
-        <script src="http://github.com/downloads/SteveSanderson/knockout/jquery.tmpl.js"></script>
-
         <script src="{{ asset('bundles/padam87knockoutjs/js/knockout-2.1.0.js') }}"></script>
 
 AppKernel:
@@ -75,7 +73,7 @@ config.yml:
 
 ## Dependencies
 
-None. For testing purposes I used the AcmePizzaBundle, as you can see at OrderFromType.php
+None. For testing purposes I used my BaseBundle, if you want to test it, you have to include it in your composer.json file too. No deps...
 
 ## Stuff to do
 
