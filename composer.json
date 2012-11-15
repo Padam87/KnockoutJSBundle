@@ -2,7 +2,7 @@
     "name": "padam87/knockout-js-bundle",
     "type": "symfony-bundle",
     "description": "Symfony KnockoutJSBundle",
-    "keywords": ["modules", "reusability"],
+    "keywords": ["symfony", "knockoutjs", "javascript", "mvvm"],
     "homepage": "https://github.com/Padam87/KnockoutJSBundle",
     "authors": [
         {

@@ -4,42 +4,41 @@ Integrates knockout.js into Symfony2, provides automatic code generation for col
 
 ## Simple example ##
 
-		<?php
+	<?php
+
+	namespace Padam87\KnockoutJSBundle\Form;
+	
+	use Symfony\Component\Form\FormBuilderInterface;
+	
+	class OrderType extends \Padam87\BaseBundle\Form\OrderType
+	{
+	    public function buildForm(FormBuilderInterface $builder, array $options)
+	    {
+	        $builder
+	            ->remove('items')
+	            ->add('items', 'knockout', array(
+	                'type'         => new \Padam87\BaseBundle\Form\OrderItemType(),
+	                'allow_add'    => true,
+	                'allow_delete' => true,
+	                'prototype'    => true,
+	                'by_reference'  => false,
+	            ))
+	        ;
+	    }
 		
-		namespace Padam87\KnockoutJSBundle\Form;
-		
-		use Symfony\Component\Form\AbstractType;
-		use Symfony\Component\Form\FormBuilder;
-		use Acme\PizzaBundle\Form\Type\CustomerType;
-		use Acme\PizzaBundle\Form\Type\OrderItemType;
-		
-		class OrderFormType extends AbstractType
+		public function getDefaultOptions(array $options)
 		{
-		    public function buildForm(FormBuilder $builder, array $options)
-		    {
-		        $builder
-		            ->add('customer', new CustomerType())
-		            ->add('items', 'knockout', array(
-		                'type'         => new OrderItemType(),
-		                'allow_add'    => true,
-		                'allow_delete' => true,
-		                'prototype'    => true,
-		            ))
-		        ;
-		    }
-			
-			public function getDefaultOptions(array $options)
-			{
-				return array(
-					'knockout' => true,
-				);
-			}
-		
-		    public function getName()
-		    {
-		        return 'order';
-		    }
+			return array(
+				'knockout' => true,
+	            'data_class' => 'Padam87\BaseBundle\Entity\Order'
+			);
 		}
+	
+	    public function getName()
+	    {
+	        return 'order';
+	    }
+	}
 
 Settings the knockout option to true enables the viewModel generation for this form.
 
@@ -47,29 +46,26 @@ I have added the items field with the KnockoutType, which extends the Collection
 
 ## Installation
 
-Please don't forget to install assets, and add the js to your page.
+###Composer:
 
-        <script src="{{ asset('bundles/padam87knockoutjs/js/knockout-2.1.0.js') }}"></script>
+    "padam87/knockout-js-bundle": "dev-master",
 
-AppKernel:
+###AppKernel:
 
-        $bundles = array(
-			...
-            new Padam87\DDSlickBundle\Padam87KnockoutJSBundle(),
-        );
+    $bundles = array(
+		...
+        new Padam87\DDSlickBundle\Padam87KnockoutJSBundle(),
+    );
 
-Autoload:
+###config.yml:
 
-		$loader->registerNamespaces(array(
-		    ...
-		    'Padam87'          => __DIR__.'/../vendor/bundles',
-		));
+	imports:
+	    ...
+	    - { resource: "@Padam87KnockoutJSBundle/Resources/config/config.yml" }
 
-config.yml:
+###Add the js to your page.
 
-		imports:
-		    ...
-		    - { resource: "@Padam87KnockoutJSBundle/Resources/config/config.yml" }
+    <script src="{{ asset('bundles/padam87knockoutjs/js/knockout-2.1.0.js') }}"></script>
 
 ## Dependencies
 
