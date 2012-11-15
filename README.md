@@ -54,7 +54,7 @@ I have added the items field with the KnockoutType, which extends the Collection
 
     $bundles = array(
 		...
-        new Padam87\DDSlickBundle\Padam87KnockoutJSBundle(),
+        new Padam87\KnockoutJSBundle\Padam87KnockoutJSBundle(),
     );
 
 ###config.yml:
