@@ -19,14 +19,14 @@ class OrderType extends \Padam87\BaseBundle\Form\OrderType
             ))
         ;
     }
-	
-	public function getDefaultOptions(array $options)
-	{
-		return array(
-			'knockout' => true,
+
+    public function getDefaultOptions(array $options)
+    {
+        return array(
+            'knockout' => true,
             'data_class' => 'Padam87\BaseBundle\Entity\Order'
-		);
-	}
+        );
+    }
 
     public function getName()
     {

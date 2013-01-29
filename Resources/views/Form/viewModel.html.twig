@@ -25,7 +25,7 @@
             </tr>
         </script>
     {% endif %}
-        
+
     <table class="table">
         <thead>
             <tr>
@@ -45,25 +45,25 @@
 
 {% macro viewModel(params) %}
 <script>
-$(document).ready(function () {   
+$(document).ready(function () {
     {% for id, binding in params.bindings %}
         $("#{{ params.name }}_{{ id }}").attr('data-bind', "{{ binding }}");
     {% endfor %}
-        
+
     ko.bindingHandlers.uniqueId = {
         init: function(element, valueAccessor) {
             var counter = {{ params.name }}ViewModel.counter;
-            
+
             element.id = element.id.replace(/_id_/g, counter);
             element.name = element.name.replace(/_id_/g, counter);
         }
     };
-    
+
     var {{ params.name }}ViewModel = {
             {{ _self.viewModelFields(params.fields, params.collections, params.name)|raw }},
             {{ _self.viewModelMethods(params.fields, params.collections)|raw }}
         };
-        
+
 
     {{ _self.viewModelFunctions(params.name, params.fields, params.collections)|raw }}
 

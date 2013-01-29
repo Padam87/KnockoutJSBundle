@@ -4,7 +4,6 @@ namespace Padam87\KnockoutJSBundle\Form\Type;
 
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\Extension\Core\EventListener\ResizeFormListener;
 
 class KnockoutType extends CollectionType
 {
@@ -14,7 +13,7 @@ class KnockoutType extends CollectionType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         parent::buildForm($builder, $options);
-        
+
         if ($options['allow_add'] && $options['prototype']) {
             $prototype = $builder->create('_id_', $options['type'], $options['options']);
             $builder->setAttribute('prototype', $prototype->getForm());

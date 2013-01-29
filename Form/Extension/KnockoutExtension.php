@@ -8,7 +8,7 @@ use Symfony\Component\Form\FormView;
 use Symfony\Component\Form\FormBuilderInterface;
 
 class KnockoutExtension extends AbstractTypeExtension
-{    
+{
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->setAttribute('knockout', $options['knockout']);
@@ -17,8 +17,8 @@ class KnockoutExtension extends AbstractTypeExtension
     public function buildView(FormView $view, FormInterface $form, array $options)
     {
         $knockout['enabled'] = $form->getAttribute('knockout');
-        
-        if($knockout['enabled'] === true) {            
+
+        if ($knockout['enabled'] === true) {
             $knockout['viewModel'] = array(
                 'name' => $form->getName(),
                 'fields' => $this->buildViewModelFields($form->getChildren()),
@@ -26,99 +26,95 @@ class KnockoutExtension extends AbstractTypeExtension
                 'collections' => $this->getCollections($form->getChildren(), $view),
             );
         }
-        
+
         $view->set('knockout', $knockout);
     }
-    
+
     protected function buildViewModelFields(array $children)
     {
         $fields = array();
-        
-        foreach($children as $field) {
+
+        foreach ($children as $field) {
             if($field->getName() === '_token') continue;
-            
-            if($field->hasChildren()) {
+
+            if ($field->hasChildren()) {
                 $data = $field->getData();
-                if(is_object($data) && $data instanceof \Doctrine\ORM\PersistentCollection) {
+                if (is_object($data) && $data instanceof \Doctrine\ORM\PersistentCollection) {
                     $fields[$field->getName()] = $this->buildViewModelFields($field->getChildren());
-        
+
                     $i = 1;
-                    
-                    foreach($fields[$field->getName()] as $k => $collectionItem) {
+
+                    foreach ($fields[$field->getName()] as $k => $collectionItem) {
                         $collectionItem['id'] = $i;
                         $i++;
-                        
+
                         $fields[$field->getName()][$k] = $collectionItem;
                     }
-                    
+
                     $i++;
-                }
-                else {                    
+                } else {
                     $fields[$field->getName()] = $this->buildViewModelFields($field->getChildren());
                 }
-            }
-            else {
+            } else {
                 $data = $field->getData();
-            
-                if(is_object($data)) {
+
+                if (is_object($data)) {
                      $data = $data->getId();
                 }
-                
+
                 $fields[$field->getName()] = $data === NULL ? "" : $data;
             }
         }
-        
+
         return $fields;
     }
-    
+
     protected function buildViewModelBindings(array $children, $pre = "")
     {
         $bindings = array();
-        
-        foreach($children as $field) {
+
+        foreach ($children as $field) {
             if($field->getName() === '_token') continue;
-            
+
             $data = $field->getData();
-            
-            if(is_object($data) && $data instanceof \Doctrine\ORM\PersistentCollection) {
+
+            if (is_object($data) && $data instanceof \Doctrine\ORM\PersistentCollection) {
                  // TODO
-            }
-            else {
-                if($field->hasChildren()) {
+            } else {
+                if ($field->hasChildren()) {
                     $newPre = empty($pre) ? $field->getName() : $pre . '.' . $field->getName();
 
-                    foreach($this->buildViewModelBindings($field->getChildren(), $newPre) as $k => $binding) {
+                    foreach ($this->buildViewModelBindings($field->getChildren(), $newPre) as $k => $binding) {
                         $bindings[$k] = $binding;
                     }
-                }
-                else {
+                } else {
                     $bindings[str_replace(".", "_", $pre) . '_' . $field->getName()] = "value: " . $pre . '.' . $field->getName();
                 }
             }
         }
-        
+
         return $bindings;
     }
-    
+
     protected function getCollections(array $children, $view)
     {
         $collections = array();
-        
-        foreach($children as $field) {
+
+        foreach ($children as $field) {
             if($field->getName() === '_token') continue;
             $data = $field->getData();
-            
-            if(is_object($data) && $data instanceof \Doctrine\ORM\PersistentCollection) {
+
+            if (is_object($data) && $data instanceof \Doctrine\ORM\PersistentCollection) {
                 $prototypeData = array();
-                
-                foreach(array_keys($field->createView($view)->get("prototype")->getChildren()) as $name) {
+
+                foreach (array_keys($field->createView($view)->get("prototype")->getChildren()) as $name) {
                     $prototypeData[$name] = "";
                 }
-                
+
                 $collections[$field->getName()] = $prototypeData;
             }
         }
-        
+
         return $collections;
     }
 
