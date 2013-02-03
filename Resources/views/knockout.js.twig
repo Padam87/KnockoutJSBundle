@@ -1,0 +1,78 @@
+$(document).ready(function () {
+    {% for id, binding in bindings %}
+        $("#{{ name }}_{{ id }}").attr('data-bind', "{{ binding }}");
+    {% endfor %}
+
+    ko.bindingHandlers.uniqueId = {
+        init: function(element, valueAccessor) {
+            var counter = {{ name }}ViewModel.counter;
+
+            element.id = element.id.replace(/__id__/g, counter);
+            element.name = element.name.replace(/__id__/g, counter);
+        }
+    };
+
+    var {{ name }}ViewModel = {
+            {{ _self.viewModelFields(fields, collections, name)|raw }},
+            {{ _self.viewModelMethods(fields, collections)|raw }}
+        };
+
+
+    {{ _self.viewModelFunctions(name, fields, collections)|raw }}
+
+    ko.applyBindings({{ name }}ViewModel);
+});
+
+{% macro viewModelFields(fields, collections, modelName) %}
+counter: 0,
+incCounter: function() {
+    {{ modelName }}ViewModel.counter++;
+},
+    {% for name, value in fields %}
+        {% spaceless %}
+            {{ name }} :
+            {% if value is iterable %}
+                {% if collections[name] is defined %}
+                    ko.observableArray([
+                        {% for v in value %}
+                            new {{name}}({% for cname, field in collections[name] %}'{{v[cname]}}'{% if not loop.last %},{% endif %} {% endfor %})
+                            {% if not loop.last %}
+                                ,
+                            {% endif %}
+                        {% endfor %}
+                    ])
+                {% else %}
+                    { {{ _self.viewModelFields(value) }} }
+                {% endif %}
+            {% else %}
+                ko.observable("{{ value }}")
+            {% endif %}
+            {% if not loop.last %}
+                ,
+            {% endif %}
+        {% endspaceless %}
+    {% endfor %}
+{% endmacro %}
+
+{% macro viewModelMethods(fields, collections) %}
+    {% for name, value in collections %}
+        create{{ name|capitalize }}: function() {
+            this.{{name}}.push(new {{name}}());
+        }
+    {% endfor %}
+{% endmacro %}
+
+{% macro viewModelFunctions(vmname, fields, collections) %}
+    {% for name, value in collections %}
+        function {{ name }}({% for k, v in value %}{{k}}{% if not loop.last %},{% endif %} {% endfor %}) {
+            return {
+                {% for k, v in value %}
+                    '{{ k }}' : ko.observable({{ k }}),
+                {% endfor %}
+                remove: function() {
+                    {{ vmname }}ViewModel.{{name}}.remove(this);
+                }
+            };
+        }
+    {% endfor %}
+{% endmacro %}
