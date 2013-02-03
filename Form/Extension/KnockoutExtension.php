@@ -6,26 +6,22 @@ use Symfony\Component\Form\AbstractTypeExtension;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\Form\FormBuilderInterface;
+use JMS\DiExtraBundle\Annotation as DI;
 
+/**
+ * @DI\Service("form.type_extension.knockout")
+ * @DI\Tag("form.type_extension", attributes = { "alias" = "form" })
+ */
 class KnockoutExtension extends AbstractTypeExtension
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
-    {
-        $builder->setAttribute('knockout', $options['knockout']);
-    }
-
     public function buildView(FormView $view, FormInterface $form, array $options)
     {
-        $knockout['enabled'] = $form->getAttribute('knockout');
-
-        if ($knockout['enabled'] === true) {
-            $knockout['viewModel'] = array(
-                'name' => $form->getName(),
-                'fields' => $this->buildViewModelFields($form->getChildren()),
-                'bindings' => $this->buildViewModelBindings($form->getChildren()),
-                'collections' => $this->getCollections($form->getChildren(), $view),
-            );
-        }
+        $knockout = array(
+            'name' => $form->getName(),
+            'fields' => $this->buildViewModelFields($form->getChildren()),
+            'bindings' => $this->buildViewModelBindings($form->getChildren()),
+            'collections' => $this->getCollections($form->getChildren(), $view),
+        );
 
         $view->set('knockout', $knockout);
     }
@@ -38,8 +34,7 @@ class KnockoutExtension extends AbstractTypeExtension
             if($field->getName() === '_token') continue;
 
             if ($field->hasChildren()) {
-                $data = $field->getData();
-                if (is_object($data) && $data instanceof \Doctrine\ORM\PersistentCollection) {
+                if ($field->getConfig()->getType()->getInnerType()->getName() == 'knockout') {
                     $fields[$field->getName()] = $this->buildViewModelFields($field->getChildren());
 
                     $i = 1;
@@ -76,9 +71,7 @@ class KnockoutExtension extends AbstractTypeExtension
         foreach ($children as $field) {
             if($field->getName() === '_token') continue;
 
-            $data = $field->getData();
-
-            if (is_object($data) && $data instanceof \Doctrine\ORM\PersistentCollection) {
+            if ($field->getConfig()->getType()->getInnerType()->getName() == 'knockout') {
                  // TODO
             } else {
                 if ($field->hasChildren()) {
@@ -88,7 +81,12 @@ class KnockoutExtension extends AbstractTypeExtension
                         $bindings[$k] = $binding;
                     }
                 } else {
-                    $bindings[str_replace(".", "_", $pre) . '_' . $field->getName()] = "value: " . $pre . '.' . $field->getName();
+                    if (empty($pre)) {
+                        $bindings[$field->getName()] = "value: " . $field->getName();
+                    }
+                    else {
+                        $bindings[str_replace(".", "_", $pre) . '_' . $field->getName()] = "value: " . $pre . '.' . $field->getName();
+                    }
                 }
             }
         }
@@ -96,18 +94,15 @@ class KnockoutExtension extends AbstractTypeExtension
         return $bindings;
     }
 
-    protected function getCollections(array $children, $view)
+    protected function getCollections(array $children, $parentView)
     {
         $collections = array();
 
         foreach ($children as $field) {
-            if($field->getName() === '_token') continue;
-            $data = $field->getData();
-
-            if (is_object($data) && $data instanceof \Doctrine\ORM\PersistentCollection) {
+            if ($field->getConfig()->getType()->getInnerType()->getName() == 'knockout') {
                 $prototypeData = array();
 
-                foreach (array_keys($field->createView($view)->get("prototype")->getChildren()) as $name) {
+                foreach (array_keys($field->createView($parentView)->get("prototype")->getChildren()) as $name) {
                     $prototypeData[$name] = "";
                 }
 

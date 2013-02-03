@@ -1,0 +1,46 @@
+{% block form_widget %}
+{% spaceless %}
+    {% if compound %}
+        {{ block('form_widget_compound') }}
+    {% else %}
+        {{ block('form_widget_simple') }}
+    {% endif %}
+{% endspaceless %}
+
+<script>
+    
+</script>
+
+{% endblock form_widget %}
+
+{% block knockout_widget %}
+{% spaceless %}
+    {% if prototype is defined %}
+        <script id="{{ id }}_template" type="text/html">
+            <tr>
+            {% for name, field in prototype %}
+                <td>
+                {{ form_widget(field, { attr: { 'data-bind': 'value: ' ~ name ~ ', uniqueId: ' ~ name } }) }}
+                </td>
+            {% endfor %}
+                <td><button type="button" class="btn" data-bind="click: remove">{% trans %}knockout.remove{% endtrans %}</button></td>
+            </tr>
+        </script>
+    {% endif %}
+
+    <table class="table">
+        <thead>
+            <tr>
+            {% for name, field in prototype %}
+                <th>
+                    {{ form_label(field) }}
+                </th>
+            {% endfor %}
+                <th><button type="button" class="btn" data-bind="click: create{{ name|capitalize }}">{% trans %}knockout.add{% endtrans %}</button></th>
+            </tr>
+        </thead>
+        <tbody data-bind="template: { name: '{{ id }}_template', foreach: items, afterRender: incCounter }">
+        </tbody>
+    </table>
+{% endspaceless %}
+{% endblock knockout_widget %}

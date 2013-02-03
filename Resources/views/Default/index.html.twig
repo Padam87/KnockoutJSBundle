@@ -6,9 +6,11 @@
 {% block content %}
 
 <form method="POST">
+    
+    {{ knockout(form.vars.knockout)|raw }}
     {{ form_widget(form) }}
-
-        <button>SAVE</button>
+    
+    <button>SAVE</button>
 </form>
 
 {% endblock %}

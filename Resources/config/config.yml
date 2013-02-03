@@ -1,9 +1,4 @@
 twig:
     form:
         resources:
-            - 'Padam87KnockoutJSBundle:Form:viewModel.html.twig'
-services:
-    form.type_extension.knockout:
-        class: Padam87\KnockoutJSBundle\Form\Extension\KnockoutExtension
-        tags:
-          - { name: "form.type_extension", alias: "form" }
+            - 'Padam87KnockoutJSBundle:Form:knockout.html.twig'
