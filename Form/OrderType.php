@@ -9,7 +9,7 @@ class OrderType extends \Padam87\BaseBundle\Form\OrderType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         parent::buildForm($builder, $options);
-        
+
         $builder
             ->remove('items')
             ->add('items', 'knockout', array(

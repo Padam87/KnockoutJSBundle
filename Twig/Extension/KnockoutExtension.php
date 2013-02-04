@@ -1,9 +1,6 @@
 <?php
 namespace Padam87\KnockoutJSBundle\Twig\Extension;
 
-use Symfony\Bridge\Twig\TokenParser\FormThemeTokenParser;
-use Symfony\Bridge\Twig\Form\TwigRendererInterface;
-use Symfony\Component\Form\Extension\Core\View\ChoiceView;
 use JMS\DiExtraBundle\Annotation as DI;
 
 /**
@@ -13,7 +10,7 @@ use JMS\DiExtraBundle\Annotation as DI;
 class KnockoutExtension extends \Twig_Extension
 {
     public $environment;
-    
+
     /**
      * {@inheritdoc}
      */
@@ -21,7 +18,7 @@ class KnockoutExtension extends \Twig_Extension
     {
         $this->environment = $environment;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -31,15 +28,15 @@ class KnockoutExtension extends \Twig_Extension
             'knockout'   => new \Twig_Function_Method($this, 'createViewModel'),
         );
     }
-    
+
     public function createViewModel($params, $script = true)
     {
         $knockout = $this->environment->render("Padam87KnockoutJSBundle::knockout.js.twig", $params);
-        
+
         if ($script === true) {
             return '<script>' . $knockout . '</script>';
         }
-        
+
         return $knockout;
     }
 

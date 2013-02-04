@@ -25,18 +25,18 @@ class GenerateCommand extends Command
         $formName = $input->getArgument('form');
         $form = $container->get('form.factory')->create(new $formName());
         $view = $form->createView();
-        
+
         $twigKo = $container->get('twig.extension.knockout');
         $twigKo->initRuntime($container->get('twig'));
-        
+
         $vM = $twigKo->createViewModel($view->vars['knockout'], false);
         $dirname = $kernel->getRootDir() . '/Resources/knockout';
         $filename = $dirname . '/' . $view->vars['name'] . '.ko.js';
-        
+
         if (!is_dir($dirname)) {
             mkdir($dirname);
         }
-        
+
         file_put_contents($filename, $vM);
     }
 }

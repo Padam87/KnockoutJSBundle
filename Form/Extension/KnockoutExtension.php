@@ -5,7 +5,6 @@ namespace Padam87\KnockoutJSBundle\Form\Extension;
 use Symfony\Component\Form\AbstractTypeExtension;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
-use Symfony\Component\Form\FormBuilderInterface;
 use JMS\DiExtraBundle\Annotation as DI;
 
 /**
@@ -83,8 +82,7 @@ class KnockoutExtension extends AbstractTypeExtension
                 } else {
                     if (empty($pre)) {
                         $bindings[$field->getName()] = "value: " . $field->getName();
-                    }
-                    else {
+                    } else {
                         $bindings[str_replace(".", "_", $pre) . '_' . $field->getName()] = "value: " . $pre . '.' . $field->getName();
                     }
                 }
