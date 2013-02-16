@@ -6,6 +6,7 @@ use Symfony\Component\Form\AbstractTypeExtension;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use JMS\DiExtraBundle\Annotation as DI;
+use Doctrine\Common\Collections\Collection;
 
 /**
  * @DI\Service("form.type_extension.knockout")
@@ -30,33 +31,27 @@ class KnockoutExtension extends AbstractTypeExtension
         $fields = array();
 
         foreach ($children as $field) {
-            if($field->getName() === '_token') continue;
-
-            if ($field->hasChildren()) {
-                if ($field->getConfig()->getType()->getInnerType()->getName() == 'knockout') {
-                    $fields[$field->getName()] = $this->buildViewModelFields($field->getChildren());
-
-                    $i = 1;
-
-                    foreach ($fields[$field->getName()] as $k => $collectionItem) {
-                        $collectionItem['id'] = $i;
-                        $i++;
-
-                        $fields[$field->getName()][$k] = $collectionItem;
-                    }
-
-                    $i++;
-                } else {
-                    $fields[$field->getName()] = $this->buildViewModelFields($field->getChildren());
+            $name = $field->getName();
+            $data = $field->getData();
+            
+            if($name === '_token') continue;
+            
+            if ($field->hasChildren() || $data instanceof Collection) {
+                $fields[$name] = $this->buildViewModelFields($field->getChildren());
+                
+                if(is_object($data) && !$data instanceof Collection) { // if entity
+                    $fields[$name]['id'] = $data->getId();
                 }
             } else {
-                $data = $field->getData();
+                if ($data instanceof \DateTime) {
+                    $data = $data->format('Y-m-d H:i:s');
+                }
 
                 if (is_object($data)) {
                      $data = $data->getId();
                 }
-
-                $fields[$field->getName()] = $data === NULL ? "" : $data;
+                
+                $fields[$name] = $data === NULL ? "" : $data;
             }
         }
 
@@ -98,7 +93,9 @@ class KnockoutExtension extends AbstractTypeExtension
 
         foreach ($children as $field) {
             if ($field->getConfig()->getType()->getInnerType()->getName() == 'knockout') {
-                $prototypeData = array();
+                $prototypeData = array(
+                    'id' => ""
+                );
 
                 foreach (array_keys($field->createView($parentView)->get("prototype")->getChildren()) as $name) {
                     $prototypeData[$name] = "";

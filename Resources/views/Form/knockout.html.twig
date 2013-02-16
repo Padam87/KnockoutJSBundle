@@ -1,18 +1,3 @@
-{% block form_widget %}
-{% spaceless %}
-    {% if compound %}
-        {{ block('form_widget_compound') }}
-    {% else %}
-        {{ block('form_widget_simple') }}
-    {% endif %}
-{% endspaceless %}
-
-<script>
-
-</script>
-
-{% endblock form_widget %}
-
 {% block knockout_widget %}
 {% spaceless %}
     {% if prototype is defined %}
@@ -20,6 +5,7 @@
             <tr>
             {% for name, field in prototype %}
                 <td>
+                <ul data-bind="html: errors"></ul>
                 {{ form_widget(field, { attr: { 'data-bind': 'value: ' ~ name ~ ', uniqueId: ' ~ name } }) }}
                 </td>
             {% endfor %}
@@ -28,19 +14,29 @@
         </script>
     {% endif %}
 
-    <table class="table">
+    <table class="table table-knockout">
         <thead>
             <tr>
             {% for name, field in prototype %}
                 <th>
-                    {{ form_label(field) }}
+                    {{ form_label(field, name) }}
                 </th>
             {% endfor %}
-                <th><button type="button" class="btn" data-bind="click: create{{ name|capitalize }}">{% trans %}knockout.add{% endtrans %}</button></th>
+                <th></th>
             </tr>
         </thead>
-        <tbody data-bind="template: { name: '{{ id }}_template', foreach: items, afterRender: incCounter }">
+        <tbody data-bind="template: { name: '{{ id }}_template', foreach: {{ name }}, afterRender: inc{{ name|capitalize }}Counter }">
         </tbody>
+        <tfoot>
+            <td colspan="{{ prototype|length + 1 }}" style="text-align: center;">
+                <button type="button" class="btn" data-bind="click: create{{ name|capitalize }}">
+                    {% trans %}knockout.add{% endtrans %}
+                </button>
+            </td>
+        </tfoot>
     </table>
+        
+    {% if form.setRendered() %}
+    {% endif %}
 {% endspaceless %}
 {% endblock knockout_widget %}

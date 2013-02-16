@@ -4,8 +4,8 @@ $(document).ready(function () {
     {% endfor %}
 
     ko.bindingHandlers.uniqueId = {
-        init: function(element, valueAccessor) {
-            var counter = {{ name }}ViewModel.counter;
+        init: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+            var counter = {{ name }}ViewModel.counters[viewModel.counterName];
 
             element.id = element.id.replace(/__id__/g, counter);
             element.name = element.name.replace(/__id__/g, counter);
@@ -14,20 +14,21 @@ $(document).ready(function () {
 
     var {{ name }}ViewModel = {
             {{ _self.viewModelFields(fields, collections, name)|raw }},
-            {{ _self.viewModelMethods(fields, collections)|raw }}
+            {{ _self.viewModelMethods(fields, collections, name)|raw }}
         };
 
-
+        
+    {% for cname, value in collections %}
+        {{ name }}ViewModel.counters['{{ cname }}'] = 0;
+    {% endfor %}
+            
     {{ _self.viewModelFunctions(name, fields, collections)|raw }}
 
     ko.applyBindings({{ name }}ViewModel);
 });
 
 {% macro viewModelFields(fields, collections, modelName) %}
-counter: 0,
-incCounter: function() {
-    {{ modelName }}ViewModel.counter++;
-},
+    counters: [],
     {% for name, value in fields %}
         {% spaceless %}
             {{ name }} :
@@ -54,11 +55,17 @@ incCounter: function() {
     {% endfor %}
 {% endmacro %}
 
-{% macro viewModelMethods(fields, collections) %}
+{% macro viewModelMethods(fields, collections, modelName) %}
     {% for name, value in collections %}
+        inc{{ name|capitalize }}Counter: function() {
+            {{ modelName }}ViewModel.counters['{{ name }}']++;
+        },
         create{{ name|capitalize }}: function() {
             this.{{name}}.push(new {{name}}());
         }
+        {% if not loop.last %}
+            ,
+        {% endif %}
     {% endfor %}
 {% endmacro %}
 
@@ -69,6 +76,7 @@ incCounter: function() {
                 {% for k, v in value %}
                     '{{ k }}' : ko.observable({{ k }}),
                 {% endfor %}
+                    'counterName': '{{ name }}',
                 remove: function() {
                     {{ vmname }}ViewModel.{{name}}.remove(this);
                 }
