@@ -33,13 +33,13 @@ class KnockoutExtension extends AbstractTypeExtension
         foreach ($children as $field) {
             $name = $field->getName();
             $data = $field->getData();
-            
+
             if($name === '_token') continue;
-            
+
             if ($field->hasChildren() || $data instanceof Collection) {
                 $fields[$name] = $this->buildViewModelFields($field->getChildren());
-                
-                if(is_object($data) && !$data instanceof Collection) { // if entity
+
+                if (is_object($data) && !$data instanceof Collection) { // if entity
                     $fields[$name]['id'] = $data->getId();
                 }
             } else {
@@ -50,7 +50,7 @@ class KnockoutExtension extends AbstractTypeExtension
                 if (is_object($data)) {
                      $data = $data->getId();
                 }
-                
+
                 $fields[$name] = $data === NULL ? "" : $data;
             }
         }

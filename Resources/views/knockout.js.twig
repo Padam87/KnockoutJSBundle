@@ -17,11 +17,11 @@ $(document).ready(function () {
             {{ _self.viewModelMethods(fields, collections, name)|raw }}
         };
 
-        
+
     {% for cname, value in collections %}
         {{ name }}ViewModel.counters['{{ cname }}'] = 0;
     {% endfor %}
-            
+
     {{ _self.viewModelFunctions(name, fields, collections)|raw }}
 
     ko.applyBindings({{ name }}ViewModel);
