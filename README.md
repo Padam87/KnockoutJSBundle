@@ -60,3 +60,7 @@ None. For testing purposes I used my BaseBundle, if you want to test it, you hav
 
 - Generator. Right now the command is there, but its not working properly.
 
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/Padam87/knockoutjsbundle/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
